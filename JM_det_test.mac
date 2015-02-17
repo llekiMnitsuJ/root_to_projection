@@ -1,0 +1,90 @@
+#You should run sed on this file and replace the following variables:
+# VAR_RADIUS_CM_TO_SET
+# VAR_ANGLE_DEGREE_TO_SET
+/control/alias jkcmWorld 150.
+
+
+#set location of macros on this computer
+/control/getEnv JKCMSOURCE
+/control/execute {JKCMSOURCE}/gateMacros/Siemens_JustinMikell/utilities/setDirectories.mac
+
+#list the alias
+/control/listAlias
+
+#output filename prefix
+/control/alias filenamePrefix proj_VAR_RADIUS_CM_TO_SET_VAR_ANGLE_DEGREE_TO_SET
+
+#initialize collimator variables
+/control/execute {collimatorDir}/LEHRValues.mac
+
+#initialize crystal/detector variables
+/control/execute {crystalDir}/threeEighthsCrystalValues.mac
+
+#Visualization
+#/control/execute {utilitiesDir}/vis.mac
+/gate/geometry/setMaterialDatabase GateMaterials.db
+
+/gate/world/geometry/setXLength {jkcmWorld} cm
+/gate/world/geometry/setYLength {jkcmWorld} cm
+/gate/world/geometry/setZLength {jkcmWorld} cm
+
+/control/alias detectorName det1
+#(cm) you will run sed and change these
+/control/alias radialPosition VAR_RADIUS_CM_TO_SET 
+#(deg)
+/control/alias startAngle VAR_ANGLE_DEGREE_TO_SET
+
+/control/execute {detectorDir}/detector.mac
+#/control/execute {detectorDir}/detectorNoCollimator.mac
+#/control/execute calcDetParams.mac
+#/control/execute SCANNERHEAD.mac
+#/control/execute BACKSHIELDING.mac
+#/control/execute SIDESHIELDINGSI.mac
+#/control/execute SIDESHIELDINGLR.mac
+#/control/execute LIGHTGUIDE.mac
+#/control/execute CRYSTAL.mac
+#/control/execute ALUMINUMCOVER.mac
+#/control/execute COLLIMATOR.mac
+#/control/execute PMTS.mac
+
+/control/execute {phantomDir}/boxPhantom.mac
+
+/control/execute {utilitiesDir}/physics.mac
+
+/gate/run/initialize
+
+/control/execute {sourceDir}/boxSource.mac
+
+###SET DIGITIZER###
+#set digitizer (energy blurring, intrinsic blurring)
+/control/execute {detectorDir}/digitizer.mac
+
+###RANDOM###
+/gate/random/verbose 0
+/gate/random/setEngineName MersenneTwister
+/gate/random/setEngineSeed auto
+
+###OUTPUT###
+#ROOT#
+/gate/output/root/enable
+/gate/output/root/setFileName {filenamePrefix}
+/gate/output/root/setRootSinglesAdderFlag 0
+/gate/output/root/setRootSinglesBlurringFlag 0
+/gate/output/root/setRootSinglesSpblurringFlag 1
+/gate/output/root/setRootSinglesThresholderFlag 0
+/gate/output/root/setRootSinglesUpholderFlag 0
+
+###EXPERIMENT###
+#set simulation time
+/gate/application/setTimeSlice 0.01 s
+/gate/application/setTimeStart 0. s
+/gate/application/setTimeStop 0.01 s
+
+###VERBOSITY###
+/control/verbose 0
+/run/verbose 0
+/event/verbose 0
+
+##RUN SIMULATION##
+/gate/application/startDAQ
+
