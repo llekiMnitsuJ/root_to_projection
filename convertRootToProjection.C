@@ -361,7 +361,7 @@ void createProjectionData(TTree* myTree,
 	//initialize projection array
 	const ULong_t arrSize = nxMax*nyMax;
 	UInt_t* projArr = new UInt_t[arrSize];
-	for(UInt_t i=0; i< arrSize; ++i) projArr[i] = 0;
+	for(Long64_t i=0; i< arrSize; ++i) projArr[i] = 0;
 	
 	Int_t i_index=0, j_index=0;
 	Int_t max_i_index=-10000, max_j_index = -10000;
